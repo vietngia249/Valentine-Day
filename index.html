@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine Delivery 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #ff758c;
+            --secondary: #ff7eb3;
+            --bg: #fff0f3;
+            --text: #4a4e69;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-image: radial-gradient(#ffc2d1 15%, transparent 16%), radial-gradient(#ffc2d1 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+        }
+
+        .container {
+            background: white;
+            width: 90%;
+            max-width: 450px;
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(255, 117, 140, 0.3);
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        h1 { color: var(--primary); font-size: 1.6rem; margin-bottom: 10px; font-weight: 900; }
+        p { color: var(--text); font-size: 1.1rem; line-height: 1.5; margin-bottom: 20px; }
+        .emoji { font-size: 4rem; display: block; margin-bottom: 15px; animation: float 3s ease-in-out infinite; }
+        
+        input {
+            width: 80%;
+            padding: 12px;
+            border: 2px solid #ffccd5;
+            border-radius: 12px;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+            margin-bottom: 15px;
+            font-family: inherit;
+        }
+        input:focus { border-color: var(--primary); }
+
+        .btn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 117, 140, 0.4);
+            transition: transform 0.2s;
+            user-select: none;
+            white-space: nowrap;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:active { transform: scale(0.95); }
+
+        .progress-box {
+            width: 100%;
+            background: #eee;
+            border-radius: 20px;
+            height: 25px;
+            margin: 20px 0;
+            overflow: hidden;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #ffccd5;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            transition: width 0.1s linear;
+        }
+
+        /* Nút chạy trốn: Ban đầu KHÔNG CÓ position: absolute/fixed để nó nằm im */
+        .btn-run {
+            background: #a2a2a2;
+            transition: top 0.1s, left 0.1s; /* Di chuyển mượt */
+        }
+
+        .screen { display: none; animation: fadeIn 0.5s; }
+        .active { display: block; }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .shake { animation: shake 0.5s; }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="mainContainer">
+        
+        <!-- Màn 1: Tra Cứu Vận Đơn -->
+        <div id="screen-1" class="screen active">
+            <div class="emoji">🚚</div>
+            <h1>Tra Cứu Vận Đơn</h1>
+            <p>Chào mừng đến với dịch vụ vận chuyển Valentine.<br>Vui lòng nhập tên người nhận để kiểm tra.</p>
+            <input type="text" id="nameInput" placeholder="Nhập tên của bạn...">
+            <br>
+            <button class="btn" onclick="checkName()">Kiểm Tra</button>
+            <p id="error" style="color:red; font-size:0.9rem; margin-top:10px; display:none;">Không tìm thấy đơn hàng nào!</p>
+        </div>
+
+        <!-- Màn 2: Định Vị Lộ Trình -->
+        <div id="screen-2" class="screen">
+            <div class="emoji">📡</div>
+            <h1>Kết nối thành công!</h1>
+            <p>Hệ thống phát hiện một gói quà đặc biệt đang di chuyển từ <b>phương xa</b> đến vị trí của <b class="receiver-name">Người Ấy</b>.</p>
+            <p style="font-size: 0.9rem; color: #888;">Đang tính toán lộ trình...</p>
+        </div>
+
+        <!-- Màn 3: Xác Nhận Nhận Quà (Nút Chạy Trốn) -->
+        <div id="screen-3" class="screen">
+            <div class="emoji">💌</div>
+            <h1>Xác Nhận Nhận Quà</h1>
+            <p>Gói quà đã vào vùng phủ sóng. <br>Bạn có muốn nhận không?</p>
+            
+            <div style="display: flex; justify-content: center; gap: 15px; margin-top: 30px;">
+                <button class="btn" onclick="goToChallenge()">Nhận liền</button>
+                <button class="btn btn-run" id="noBtn">Hông pé ơi</button>
+            </div>
+        </div>
+
+        <!-- Màn 4: Mini-game Vượt Gió Ngược -->
+        <div id="screen-4" class="screen">
+            <div class="emoji">🌪️</div>
+            <h1>CẢNH BÁO GIÓ NGƯỢC!</h1>
+            <p>Gió Valentine thổi mạnh quá shipper bay không nổi! <br>Mau bấm nút liên tục để "thổi gió" phụ shipper nào!</p>
+            <div class="progress-box">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <button class="btn" onclick="pumpEnergy()" id="pumpBtn">BẤM LIÊN TỤC!! (0%)</button>
+        </div>
+
+        <!-- Màn 5: Giao Hàng Thành Công -->
+        <div id="screen-5" class="screen">
+            <div class="emoji">🎁🎉</div>
+            <h1>Giao Hàng Thành Công!</h1>
+            <p id="wishText">Chúc <b class="receiver-name">Người Ấy</b> một ngày Valentine vui vẻ, luôn xinh đẹp và yêu đời nhé! ❤️</p>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 15px; border: 2px dashed var(--primary); margin-top: 15px;">
+                <p style="margin:0; font-weight:bold; color: #555;">Món quà đã được chuyển đến:</p>
+                <h2 id="senderNameDisplay" style="margin: 10px 0 15px 0; color: var(--primary); font-size: 1.5rem; font-weight: 900;">Người Gửi Bí Ẩn</h2>
+                <p style="font-size: 0.9rem; margin-bottom: 15px;">Vui lòng liên hệ chính chủ để nhận quà nha!</p>
+                
+                <a id="contactLink" href="https://m.me/your_username" target="_blank" class="btn">
+                    👉 Inbox đòi quà ngay
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* ==========================================================================
+           ⚙️ CẤU HÌNH DỮ LIỆU TÙY BIẾN (CUSTOM CONFIG)
+           Thay đổi các thông tin bên dưới để gửi gắm cho "người ấy" của bạn nhé!
+           ========================================================================== */
+        const CONFIG = {
+            // Tiêu đề trang hiển thị trên tab trình duyệt
+            pageTitle: "Gửi Cậu - Valentine 2026 💌",
+
+            // Tên hoặc danh xưng hiển thị trên thiệp mừng (Màn 2 & Màn 5)
+            receiverName: "Người Ấy", // Ví dụ: "Bé Yêu", "Em Yêu", "Crush",...
+
+            // Danh sách các từ khóa/tên hợp lệ khi người nhận nhập ở Màn 1
+            // Không phân biệt chữ hoa/thường. Người nhận nhập trúng bất kỳ từ nào cũng sẽ được duyệt
+            validNames: [
+                "nguoi ay",
+                "người ấy",
+                "crush",
+                "em yeu",
+                "em yêu",
+                "cong chua",
+                "công chúa",
+                "baby",
+                "be yeu"
+            ],
+
+            // Lời chúc ở màn kết thúc (Màn 5). Dùng {receiver} để tự động chèn receiverName
+            wishMessage: "Chúc {receiver} một ngày Valentine vui vẻ, luôn xinh đẹp và yêu đời nhé! ❤️",
+
+            // Tên người gửi món quà (Màn 5)
+            senderName: "Người Gửi Bí Ẩn", // Ví dụ: "Anh Ấy"
+
+            // Đường link liên hệ nhận quà (Facebook Messenger, Instagram, Zalo,...)
+            contactLink: "https://m.me/your_username", // Thay bằng username hoặc ID Messenger của bạn
+
+            // Nội dung trên nút liên hệ
+            contactButtonText: "👉 Inbox đòi quà ngay"
+        };
+
+        // Khởi tạo và tự động gán dữ liệu từ CONFIG vào giao diện
+        function initApp() {
+            if (CONFIG.pageTitle) {
+                document.title = CONFIG.pageTitle;
+            }
+
+            // Gán tên người nhận vào các phần tử tương ứng
+            document.querySelectorAll('.receiver-name').forEach(el => {
+                el.innerText = CONFIG.receiverName;
+            });
+
+            // Gán lời chúc màn 5
+            const wishEl = document.getElementById('wishText');
+            if (wishEl) {
+                wishEl.innerHTML = CONFIG.wishMessage.replace(
+                    /\{receiver\}/g,
+                    `<b>${CONFIG.receiverName}</b>`
+                );
+            }
+
+            // Gán tên người gửi màn 5
+            const senderEl = document.getElementById('senderNameDisplay');
+            if (senderEl) {
+                senderEl.innerText = CONFIG.senderName;
+            }
+
+            // Gán link và nhãn nút liên hệ
+            const contactBtn = document.getElementById('contactLink');
+            if (contactBtn) {
+                contactBtn.href = CONFIG.contactLink;
+                contactBtn.innerText = CONFIG.contactButtonText;
+            }
+        }
+
+        // Màn 1: Kiểm tra tên người nhận
+        function checkName() {
+            const input = document.getElementById('nameInput').value.toLowerCase().trim();
+            const error = document.getElementById('error');
+            const container = document.getElementById('mainContainer');
+
+            const isMatched = CONFIG.validNames.some(name => input.includes(name.toLowerCase().trim()));
+
+            if (isMatched) {
+                switchScreen('screen-1', 'screen-2');
+                setTimeout(() => { switchScreen('screen-2', 'screen-3'); }, 3500);
+            } else {
+                error.style.display = 'block';
+                container.classList.add('shake');
+                setTimeout(() => container.classList.remove('shake'), 500);
+            }
+        }
+
+        // Màn 3: Nút chạy trốn (Runaway Button)
+        const noBtn = document.getElementById('noBtn');
+        
+        function moveButton() {
+            // Thoát khỏi dòng chảy văn bản để bay tự do
+            noBtn.style.position = 'fixed'; 
+            noBtn.style.zIndex = '1000';
+
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const btnWidth = noBtn.offsetWidth;
+            const btnHeight = noBtn.offsetHeight;
+
+            // Tính toán tọa độ ngẫu nhiên trong màn hình
+            const randomX = Math.random() * (screenWidth - btnWidth - 40) + 20; 
+            const randomY = Math.random() * (screenHeight - btnHeight - 40) + 20;
+            
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
+        }
+
+        // Sự kiện chuột (PC) và chạm (Mobile)
+        noBtn.addEventListener('mouseover', moveButton);
+        noBtn.addEventListener('touchstart', (e) => { 
+            e.preventDefault(); // Chặn hành vi bấm trúng trên cảm ứng
+            moveButton(); 
+        });
+
+        function goToChallenge() {
+            switchScreen('screen-3', 'screen-4');
+            startDrain(); 
+        }
+
+        // Màn 4: Mini-game nạp năng lượng
+        let energy = 0;
+        let timer;
+        function pumpEnergy() {
+            energy += 8; 
+            updateDisplay();
+            confetti({ particleCount: 3, spread: 30, origin: { y: 0.7 }, colors: ['#ff758c', '#ffffff'] });
+            if (energy >= 100) finishGame();
+        }
+        function startDrain() {
+            timer = setInterval(() => { if (energy > 0) { energy -= 1; updateDisplay(); } }, 100);
+        }
+        function updateDisplay() {
+            if (energy < 0) energy = 0;
+            if (energy > 100) energy = 100;
+            document.getElementById('progressBar').style.width = energy + '%';
+            document.getElementById('pumpBtn').innerText = `BẤM LIÊN TỤC!! (${Math.floor(energy)}%)`;
+        }
+        function finishGame() {
+            clearInterval(timer);
+            switchScreen('screen-4', 'screen-5');
+            var duration = 3000;
+            var end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+
+        function switchScreen(from, to) {
+            document.getElementById(from).classList.remove('active');
+            document.getElementById(to).classList.add('active');
+        }
+
+        document.getElementById('nameInput').addEventListener("keypress", function(event) {
+            if (event.key === "Enter") checkName();
+        });
+
+        // Khởi tạo giao diện khi tải trang
+        document.addEventListener("DOMContentLoaded", initApp);
+        initApp();
+    </script>
+</body>
+</html>
